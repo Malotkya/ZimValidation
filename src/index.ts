@@ -22,7 +22,7 @@ import Object, { ObjectValidator, ObjectProperties, ObjectDefaults } from "./Com
 
 //Passthrough Exports
 export {Validator, isEmpty};
-export type {Empty, Color, Date, DateTime, Email, Telephone, Time, Url, List, File, Optional, Object, TypeOf, Simple};
+export type {Empty, Color, Date, DateTime, Email, Telephone, Time, Url, List, File, Optional, Object, TypeOf, Simple, ObjectProperties, ObjectDefaults};
 
 //Basic Helper Functions
 export function boolean  (defaultValue?:boolean)  { return new BooleanValidator(defaultValue) };
