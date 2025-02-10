@@ -21,7 +21,9 @@ import Optional, { OptionalValidator } from "./Complex/Optional";
 import Object, { ObjectValidator, ObjectProperties, ObjectDefaults } from "./Complex/Object";
 
 //Passthrough Exports
-export {Validator, isEmpty};
+export { Validator, isEmpty, BooleanValidator, NumberValidator, StringValidator, EmptyValidator,
+         ColorValidator, DateValidator, DateTimeValidator, EmailValidator, TelephoneValidator, TimeValidator, UrlValidator,
+         ListValidator, FileValidator, RecordValidator, OptionalValidator, ObjectValidator };
 export type {Empty, Color, Date, DateTime, Email, Telephone, Time, Url, List, File, Optional, Object, TypeOf, Simple, ObjectProperties, ObjectDefaults};
 
 //Basic Helper Functions
