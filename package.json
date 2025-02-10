@@ -1,0 +1,22 @@
+{
+    "name": "zim-validation",
+    "version": "1.0.0",
+    "description": "Simple Validation Library",
+    "keywords": [
+        "Validation"
+    ],
+    "license": "ISC",
+    "author": "Alex Malotky",
+    "type": "commonjs",
+    "main": "/lib",
+    "scripts": {
+        "test": "jest",
+        "build": "tsc --build tsconfig.build.json"
+    },
+    "devDependencies": {
+        "@jest/globals": "^29.7.0",
+        "jest": "^29.7.0",
+        "ts-jest": "^29.2.5",
+        "typescript": "^5.7.3"
+    }
+}
