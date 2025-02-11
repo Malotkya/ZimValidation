@@ -1,6 +1,6 @@
 {
     "name": "zim-validation",
-    "version": "1.0.3",
+    "version": "1.1.0",
     "description": "Simple Validation Library",
     "keywords": [
         "Validation"
@@ -21,7 +21,7 @@
         "typescript": "^5.7.3"
     },
     "exports": {
-        ".": {
+        "default": {
             "import": "./lib/index.js",
             "types": "./lib/index.d.ts"
         }
