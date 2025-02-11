@@ -2,51 +2,27 @@
  * 
  * @author Alex Malotky
  */
-import Validator, { Simple } from "../Validator";
+import Validator from "../Validator";
 import { isEmpty, EmptyError } from "../Empty";
-const FILE_REGEX = /^data:([a-z\/;=-]+)(;base64)?,(.*?)$/i
+import MimeType from "../Util/MimeType";
+import {base64ArrayBuffer} from "../Util";
+
+//https://en.wikipedia.org/wiki/Data_URI_scheme
+const FILE_REGEX = /^data:([\w\/=\-+;]+),(.*?)$/
+
+const PLAIN_TEXT = new MimeType("text/plain");
 
 // File Type
-type File = Blob;
+type File = Blob&{
+    fileName?:string,
+    encoding?:string
+};
 export default File;
 
-/** String to Blob
+/** File Error
  * 
- * Taken From: https://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
- * 
- * @param {string} dataURI 
- * @returns {Blob}
  */
-function dataURIToBlob(dataURI:string):Blob{
-    const match = dataURI.match(FILE_REGEX);
-    if(match === null)
-        throw new Error("String is not a DATA URI");
-
-    const type = match[1];
-    const base64 = match[2]
-    const data = base64? atob(match[3]): unescape(match[3]);
-
-    const array = new Uint8Array(data.length);
-    for(let i=0; i<data.length; i++)
-        array[i] = data.charCodeAt(i);
-
-    return new Blob([array], {type});
-}
-
-/** Text String To Blob
- * 
- * @param {string} value 
- * @returns {Blob}
- */
-function textToBlob(value:string):Blob {
-    const array = new Uint8Array(value.length);
-
-    for (let i=0; i<value.length; i++) {
-        array[i] = value.charCodeAt(i);
-    }
-
-    return new Blob([array], {type:"text/plain"});
-}
+class FileError extends Error{};
 
 /** File Options
  * 
@@ -54,6 +30,55 @@ function textToBlob(value:string):Blob {
 export interface FileOptions {
     maxSize?:number,
     mimeType?:string,
+}
+
+/** String to Blob
+ * 
+ * @param {string} dataURI 
+ * @returns {Blob}
+ */
+function dataURIToBlob(dataURI:string, opts:FileOptions):File{
+    const match = dataURI.match(FILE_REGEX);
+    if(match === null)
+        throw new Error("String is not a DATA URI");
+
+    const type = new MimeType(match[1]);
+
+    if(opts.mimeType && type.validate(opts.mimeType))
+        throw new FileError(`Type '${type}' does not match '${opts.mimeType}'!`)
+
+    const data = type.params["base64"]? atob(match[2]): decodeURIComponent(match[2]);
+
+    if(opts.maxSize && opts.maxSize < data.length)
+        throw new FileError(`'${data.length}' is larger then max size '${opts.maxSize}'!`);
+
+    const array = new Uint8Array(data.length);
+    for(let i=0; i<data.length; i++)
+        array[i] = data.charCodeAt(i);
+
+    const file:File = new Blob([array], {type: type.toString()});
+    file.encoding = type.params["encoding"];
+
+    return file;
+}
+
+/** Text String To Blob
+ * 
+ * @param {string} value 
+ * @returns {Blob}
+ */
+function textToBlob(value:string, opts:FileOptions):File {
+    if(opts.mimeType && PLAIN_TEXT.validate(opts.mimeType))
+        throw new FileError(`Type 'text/plain' does not match '${opts.mimeType}'!`);
+
+    if(opts.maxSize && opts.maxSize < value.length)
+        throw new FileError(`'${value.length}' is larger then max size '${opts.maxSize}'!`);
+
+    const array = new TextEncoder().encode(value);
+    const file:File = new Blob([array], {type:"text/plain"});
+    file.encoding = "UTF-8";
+
+    return file;
 }
 
 /** Format File
@@ -69,9 +94,12 @@ export function formatFile(value:unknown, opts:FileOptions = {}):File {
         throw new EmptyError()
     }else if(typeof value === "string") {
         try {
-            return dataURIToBlob(value);
+            return dataURIToBlob(value, opts);
         } catch (e){
-            return textToBlob(value);
+            if(e instanceof FileError)
+                throw e;
+
+            return textToBlob(value, opts);
         }
         
     } else if( !(value instanceof Blob) ) {
@@ -89,20 +117,10 @@ export const FileName = "File";
  */
 export class FileValidator extends Validator<File> {
     constructor(opts?: FileOptions) {
-        if(opts)
-            console.warn("File options is not yet implimented!");
-        
         super(FileName, (input:unknown)=>formatFile(input, opts));
     }
 
-    async simplify(value: File):Promise<Simple> {
-        let buffer = "";
-
-        const bytes = await value.bytes();
-        for(let i=0; i<bytes.length; i++) {
-            buffer += String.fromCharCode(bytes[i])
-        }
-
-        return `data:${value.type};base64,${btoa(buffer)}`;
+    async simplify(value: File):Promise<string> {
+        return `data:${value.type};base64,${base64ArrayBuffer(await value.arrayBuffer())}`;
     }
 }
