@@ -54,6 +54,13 @@ export default class MimeType {
         return this.type === test[0] && this.subtype === test[1];
     }
 
+    /** Value
+     * 
+     */
+    get value():string {
+        return this.type + "/" + this.subtype
+    }
+
     /** To String
      * 
      * @returns {string}
