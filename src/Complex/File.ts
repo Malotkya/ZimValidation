@@ -56,7 +56,7 @@ function dataURIToBlob(dataURI:string, opts:FileOptions):File{
     for(let i=0; i<data.length; i++)
         array[i] = data.charCodeAt(i);
 
-    const file:File = new Blob([array], {type: type.toString()});
+    const file:File = new Blob([array], {type: type.value});
     file.encoding = type.params["encoding"];
 
     return file;
@@ -75,10 +75,7 @@ function textToBlob(value:string, opts:FileOptions):File {
         throw new FileError(`'${value.length}' is larger then max size '${opts.maxSize}'!`);
 
     const array = new TextEncoder().encode(value);
-    const file:File = new Blob([array], {type:"text/plain"});
-    file.encoding = "UTF-8";
-
-    return file;
+    return new Blob([array], {type:"text/plain"});;
 }
 
 /** Format File
