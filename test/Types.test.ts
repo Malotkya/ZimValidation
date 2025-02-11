@@ -1,6 +1,6 @@
 import {test, expect} from '@jest/globals';
-import * as Validation from "../../ZimEngine/lib/Validation";
-import { ValidationError } from '../../ZimEngine/lib/Validation/Type';
+import * as Validation from "../src";
+import { ValidationError } from '../src/Validator';
 import fs from "fs";
 import path from "path";
 
