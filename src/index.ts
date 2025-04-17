@@ -2,7 +2,7 @@
  * 
  * @author Alex Malotky
  */
-import Validator, {TypeOf, Simple} from "./Validator";
+import Validator, {TypeOf, Simple, Format} from "./Validator";
 import { BooleanValidator } from "./Simple/Boolean";
 import { NumberValidator } from "./Simple/Number";
 import { StringValidator } from "./Simple/String";
@@ -55,3 +55,19 @@ export function record<T>(type:Validator<T>, defaultValue?:Record<string, T>) {
     return new RecordValidator(type, defaultValue);
 }
 export function file() { return new FileValidator() };
+
+/** Custom Validator
+ * 
+ */
+export class CustomValidator<T> extends Validator<T> {
+    private _s:(v:T)=>Simple;
+
+    constructor(name:string, format:Format<T>, simplify:(v:T)=>Simple = JSON.stringify) {
+        super(name, format);
+        this._s = simplify;
+    }
+
+    simplify(value: T): Simple {
+        return this._s(value);
+    }
+}
