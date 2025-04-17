@@ -3,7 +3,7 @@
  * @author Alex Malotky
  */
 import { TypeOf } from "..";
-import Validator, {Format} from "../Validator";
+import Validator, {Format, ValidationError} from "../Validator";
 import { emptyHandler } from "../Empty";
 
 type Object<P extends ObjectProperties> = {[K in keyof P]: TypeOf<P[K]>}
@@ -68,7 +68,7 @@ function buildObject<P extends ObjectProperties, K extends keyof P>(props:P, val
         const index = expected.indexOf(name);
         if(index === -1){
             if(strict)
-                throw new Error(`Unexpected value occured at ${name}!`);
+                throw new ValidationError(ObjectName, "Unexpected value occured!", name);
 
             continue;
         }
@@ -77,7 +77,11 @@ function buildObject<P extends ObjectProperties, K extends keyof P>(props:P, val
         try {
             output[name] = props[name].run(value[name]);
         }  catch (e:any){
-            throw new Error(`${e.message || String(e)} at ${name}`);
+            if(e instanceof ValidationError) {
+                e.addHistory(ObjectName, name);
+                throw e;
+            }
+            throw new ValidationError(ObjectName, e.message || String(e), name);
         }
     }
 
@@ -85,7 +89,11 @@ function buildObject<P extends ObjectProperties, K extends keyof P>(props:P, val
         try {
             output[name] = props[name].run(defaultValue[<K>name]);
         }  catch (e:any){
-            throw new Error(`${e.message || String(e)} at ${name}`);
+            if(e instanceof ValidationError) {
+                e.addHistory(ObjectName, name);
+                throw e;
+            }
+            throw new ValidationError(ObjectName, e.message || String(e), name);
         }
         
     }

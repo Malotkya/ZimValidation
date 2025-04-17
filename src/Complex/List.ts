@@ -2,7 +2,7 @@
  * 
  * @author Alex Malotky
  */
-import Validator from "../Validator"
+import Validator, {ValidationError} from "../Validator"
 import { emptyHandler } from "../Empty";
 
 type List<T> = T[];
@@ -30,7 +30,11 @@ export class ListValidator<T> extends Validator<List<T>> {
                 try {
                     return type.run(v)
                 } catch (e:any){
-                    throw new Error(`${e.message || String(e)} at ${i}`);
+                    if(e instanceof ValidationError) {
+                        e.addHistory(ListName, i);
+                        throw e;
+                    }
+                    throw new ValidationError(ListName, `${e.message || String(e)}`, i);
                 }
             }), value);
         });

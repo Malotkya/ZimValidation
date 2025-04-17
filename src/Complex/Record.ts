@@ -2,7 +2,7 @@
  * 
  * @author Alex Malotky
  */
-import Validator from "../Validator";
+import Validator, {ValidationError} from "../Validator";
 import { emptyHandler } from "../Empty";
 import { objectify } from "./Object";
 
@@ -45,7 +45,11 @@ function buildRecord<T>(type:Validator<T>, value:Record<string, unknown>):Record
         try {
             output[name] = type.run(value[name]);
         } catch (e:any){
-            throw new Error(`${e.message || String(e)} at ${name}`);
+            if(e instanceof ValidationError) {
+                e.addHistory(RecordName, name);
+                throw e;
+            }
+            throw new ValidationError(RecordName, e.message || String(e), name);
         }
         
     }

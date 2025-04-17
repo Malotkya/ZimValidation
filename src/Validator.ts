@@ -48,6 +48,8 @@ export default abstract class Validator<T> {
         try {
             return this._format(value);
         } catch (e:any){
+            if(e instanceof ValidationError)
+                throw e;
             throw new ValidationError(this._name, e.message || String(e))
         }
     }
@@ -59,8 +61,17 @@ export default abstract class Validator<T> {
  * 
  */
 export class ValidationError extends Error {
-    constructor(name:string, message:string){
+    readonly history:string[];
+
+    constructor(name:string, message:string, history?:string|number){
         super(`${name} Validation Error: ${message}`);
+        this.history = [];
+        if(history)
+            this.addHistory(name, history);
+    }
+
+    addHistory(name:string, index:number|string) {
+        this.history.unshift(`${name}[${index}]`);
     }
 }
 
