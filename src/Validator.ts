@@ -61,18 +61,32 @@ export default abstract class Validator<T> {
  * 
  */
 export class ValidationError extends Error {
-    readonly history:string[];
+    #name:string;
 
     constructor(name:string, message:string, history?:string|number){
-        super(`${name} Validation Error: ${message}`);
-        this.history = [];
+        super(message);
+        this.#name = name;
+        this.name = `ValidationError [${name}]`;
         if(history)
             this.addHistory(name, history);
     }
 
     addHistory(name:string, index:number|string) {
-        this.history.unshift(`${name}[${index}]`);
+        const value = typeof index === "string"
+            ? `${name}['${index}']`
+            : `${name}[${index}]`;
+        
+        
+        const buffer = this.message.split("\n  ");
+        if(buffer.length > 1){
+            buffer[1] = value + " -> " + buffer[1];
+        } else {
+            buffer.push(value + " -> " + this.#name);
+        }
+        this.message = buffer.join("\n  ");
     }
+
+
 }
 
 //Get Type From Validator
