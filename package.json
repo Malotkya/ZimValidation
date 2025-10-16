@@ -21,8 +21,9 @@
         "typescript": "^5.7.3"
     },
     "exports": {
-        "default": {
+        ".": {
             "import": "./lib/index.js",
+            "require": "./lib/index.js",
             "types": "./lib/index.d.ts"
         }
     },
