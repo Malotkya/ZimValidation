@@ -104,6 +104,23 @@ test("String Convertion Test", ()=>{
     expect(test.run([])).toBe("[]");
 });
 
+///////////////////////////// Const Validator //////////////////////////////
+
+test("Constant String Value", ()=>{
+    const test = Validation.constant(["hello", "world"] as const)
+
+    expectError(()=>test.run("goodbye"), ValidationError);
+    expect(test.run("world")).toBe("world");
+})
+
+test("Constant Number Value", ()=>{
+    const test = Validation.constant([1, 2, 4, 5] as const)
+
+    expectError(()=>test.run(3), ValidationError);
+    expect(test.run("1")).toBe(1);
+    expect(test.run("4")).toBe(4);
+})
+
 ///////////////////////////// Color Validator /////////////////////////////
 
 test("Color Default Value", ()=>{

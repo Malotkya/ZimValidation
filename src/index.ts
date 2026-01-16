@@ -6,6 +6,7 @@ import Validator, {TypeOf, Simple, Format} from "./Validator";
 import { BooleanValidator } from "./Simple/Boolean";
 import { NumberValidator } from "./Simple/Number";
 import { StringValidator } from "./Simple/String";
+import { ConstValidator } from "./Const";
 import Empty, { EmptyValidator, isEmpty } from "./Empty";
 import Color,     {ColorValidator} from "./Stored/Color";
 import Date,      {DateValidator} from "./Stored/Date";
@@ -31,6 +32,7 @@ export function boolean  (defaultValue?:boolean)  { return new BooleanValidator(
 export function number   (defaultValue?:number)   { return new NumberValidator(defaultValue) };
 export function string   (defaultValue?:string)   { return new StringValidator(defaultValue) };
 export function empty    () { return new EmptyValidator() };
+export function constant<T> (defaultValue:T[]) {return new ConstValidator(defaultValue) };
 
 //Stored Helper Functions
 export function color    (defaultValue?:Color)    { return new ColorValidator(defaultValue) };
